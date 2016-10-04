@@ -20,9 +20,7 @@ import numpy as np
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template("index.html",
-       title = 'Home', user = { 'nickname': 'Miguel' },
-       )
+    return render_template("index.html")
 
 
 
@@ -60,13 +58,98 @@ def get_image():
     return Response(content,mimetype='image/gif')
 
 
+@app.route('/Image/Hashtag.gif')
+def get_hashtag_image():
+    mimetypes = {
+        ".css": "text/css",
+        ".html": "text/html",
+        ".js": "application/javascript",
+    }
+    complete_path = os.path.join(root_dir(), '/Image/Hashtag.gif')
+    complete_path = root_dir() + '/Image/Hashtag.gif'
+    print complete_path
+    ext = os.path.splitext('/Image/Hashtag.gif')[1]
+    mimetype = mimetypes.get(ext, "tex")
+    content = get_file(complete_path)
+    return Response(content,mimetype='image/gif')
 
 
 
+    
+    
+    
+@app.route('/HashtagActivity')
+def HashtagActivity():        
+    return render_template("HashtagActivity.html")     
 
+@app.route('/Hashtags')
+def Hashtags():
+    #pull start date/time and length of window and store it
+    StartDay = request.args.get('start_day')
+    StartHour = request.args.get('start_hour')
+    StartMin = request.args.get('start_minute')
+    AM_PM = request.args.get('am/pm')
+    #Start time
+    start_time = parser.parse(StartDay +' '+ StartHour+':'+StartMin+' '+AM_PM)
 
+    AddDay = request.args.get('add_day')
+    AddHour = request.args.get('add_hour')
+    AddMin = request.args.get('add_minute') 
+    #Finish time
+    end_time = start_time + timedelta(days = int(AddDay)) + timedelta(hours = int(AddHour)) + timedelta(minutes = int(AddMin))
+    
+    start_date_limit = parser.parse('September 24 2:25 PM')
+    end_date_limit = parser.parse('September 28 11:25 AM')
 
-
+    
+    if end_time == start_time or end_time > end_date_limit or start_time < start_date_limit:
+        return render_template("BadDateRange_hashtags.html")
+    else:
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        import seaborn as sns  
+        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+        from matplotlib.figure import Figure
+        from matplotlib.dates import DateFormatter 
+        from StringIO import StringIO
+        import base64
+        import io
+        from io import BytesIO 
+        import urllib
+        import pickle
+        from collections import Counter
+        f = open('flaskexample/static/df_minute_hashtag_count.pickle', 'rb')
+        df = pickle.load(f)
+        f.close()
+  
+        ##############
+        temp = df[(df.index <= end_time) & (df.index >= start_time)]
+        D = {}
+        for i in xrange(len(temp)):
+            Temp_D = dict(df.iloc[i])
+            for item in Temp_D:
+                D[item] = D.get(item,0)+Temp_D[item]
+        L = Counter(D).most_common(20)
+        A=pd.DataFrame(dict(L),index=[1])
+        A = A.transpose()
+        
+      
+  
+  
+        fig=plt.figure()
+        
+        ax = fig.add_subplot(1, 1, 1)
+        #plt.title('Number of tweets with each hashtag between '+str(start_time)+' and '+str(end_time))
+        #ax.set_xlabel('Number of tweets with each hashtag between '+str(start_time)+' and '+str(end_time))
+        A.plot.barh(ax=ax,x=A.index, y=1, legend=False)
+        
+        io = StringIO()
+        fig.savefig(io, format='png')
+        data = base64.encodestring(io.getvalue())
+        
+        data=urllib.quote(data.rstrip('\n'))
+        return render_template("HashtagOutput.html", png = data,start_time = start_time.strftime('%m/%d/%Y %I:%M%p'),end_time=end_time.strftime('%m/%d/%Y %I:%M%p'))
   
   
 @app.route('/input')
@@ -90,8 +173,7 @@ def find_tweets_output():
   return render_template("output.html", tweets = tweets, the_result = the_result)
   
   
-  
-  
+
 @app.route('/TweetData')#,methods = ['GET','POST'])
 def TweetData():
     #if request.method == 'POST':
@@ -100,30 +182,38 @@ def TweetData():
     
     
     
-@app.route('/graph')#,methods = ['GET','POST'])
+@app.route('/graph')
 def graph():
     #pull start date/time and length of window and store it
     StartDay = request.args.get('start_day')
     StartHour = request.args.get('start_hour')
     StartMin = request.args.get('start_minute')
-    AM_PM = request.args.get('am/pm')
+    StartAM_PM = request.args.get('start_am/pm')
     #Start time
-    start_time = parser.parse(StartDay +' '+ StartHour+':'+StartMin+' '+AM_PM)
+    start_time = parser.parse(StartDay +' '+ StartHour+':'+StartMin+' '+StartAM_PM)
 
-    AddDay = request.args.get('add_day')
-    AddHour = request.args.get('add_day')
-    AddMin = request.args.get('add_day') 
-    #Finish time
-    end_time = start_time + timedelta(days = int(AddDay)) + timedelta(hours = int(AddHour)) + timedelta(minutes = int(AddMin))
-    date_limit = parser.parse('September 28 01:20 PM')
+    EndDay = request.args.get('end_day')
+    EndHour = request.args.get('end_hour')
+    EndMin = request.args.get('end_minute')
+    EndAM_PM = request.args.get('end_am/pm')
+    #End time
+    end_time = parser.parse(EndDay +' '+ EndHour+':'+EndMin+' '+EndAM_PM)
+    
+    start_date_limit = parser.parse('September 24 2:25 PM')
+    end_date_limit = parser.parse('September 28 11:25 AM')
     
     #Time blocks
     time_block = request.args.get('time_block')
     time_block = int(time_block)
-    if end_time == start_time or end_time > date_limit:# or start_time + timedelta(time_block) > end_time or start_time + timedelta(time_block) == start_time :
+    
+    if end_time <= start_time or end_time > end_date_limit or start_time < start_date_limit:
         return render_template("BadDateRange.html")
+    elif time_block == 0:
+        return render_template("BadDateRange_time_block.html")
     
     else:
+        import matplotlib
+        matplotlib.use('Agg')
         import matplotlib.pyplot as plt
         import seaborn as sns  
         from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -136,15 +226,10 @@ def graph():
         import urllib
         import pickle
         
-        #import os
-        #print os.getcwd()
-        #f = open('flaskexample/static/lalala.txt','r')
         f = open('flaskexample/static/df_minute_tweet_count.pickle', 'rb')
         df = pickle.load(f)
         f.close()
-        #D = {'A':[1,2,3],'B':[4,5,6]}
-        #df = pd.DataFrame(D)
-        
+
         ##############
         Array = []
         begin_time = start_time
@@ -160,34 +245,72 @@ def graph():
             Array.append(temp_info)
             begin_time = finish_time
         Array = np.array(Array)
-        Graph_df = pd.DataFrame(Array,columns = ['Time','Pro Clinton / Anti Trump','Pro Trump / Anti Clinton'])
-        
-        
-        
+        Graph_df = pd.DataFrame(Array,columns = ['Time','Pro-Clinton / Anti-Trump','Pro-Trump / Anti-Clinton'])
+        Graph_df = Graph_df.set_index('Time')
         ###############
         fig=plt.figure()
         ax = fig.add_subplot(1, 1, 1)
-
-        Graph_df.plot(ax=ax)
+        Graph_df.plot(ax=ax,colors=['b','r'])
+        title = 'Tweet activity from ' + start_time.strftime('%m/%d/%Y %I:%M%p') + ' to ' + end_time.strftime('%m/%d/%Y %I:%M%p')
+        y_label = '# of Tweets in previous ' + str(time_block)+' minutes'
+        plt.ylabel(y_label)
+        plt.xlabel('Time')  
+        plt.title(title)
         io = StringIO()
         fig.savefig(io, format='png')
         data = base64.encodestring(io.getvalue())
-
-        
-        
         data=urllib.quote(data.rstrip('\n'))
-        print data
-        #from io import BytesIO
-        #import base64
-        #figfile = BytesIO()
-
-        #fig.savefig(io,format='png')
-        #figdata_png = base64.b64encode(figfile.getvalue())
-
         return render_template("GraphOutput.html", png = data)
 
 
+  
+@app.route('/HashtagEvolution')
+def HashtagEvolution():        
+    return render_template("HashtagEvolution.html")     
 
-        
-
+@app.route('/TagEvolution')
+def TagEvolution():
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    import seaborn as sns  
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    from matplotlib.figure import Figure
+    from matplotlib.dates import DateFormatter 
+    from StringIO import StringIO
+    import base64
+    import io
+    from io import BytesIO 
+    import urllib
+    import pickle
+    
+    f = open('flaskexample/static/df_hashtag_evolution.pickle', 'rb')
+    df = pickle.load(f)
+    f.close()
+    #pull start date/time and length of window and store it
+    hashtag1 = request.args.get('hashtag_1')
+    hashtag2 = request.args.get('hashtag_2')
+    hashtag3 = request.args.get('hashtag_3')
+    hashtag4 = request.args.get('hashtag_4')
+    L = [hashtag1,hashtag2,hashtag3,hashtag4]
+    Use = [x for x in L if len(x)>0]
+    print Use
+    fig=plt.figure()
+    #ax = fig.add_subplot(1, 1, 1)
+    #ax = df[Use].plot()
+    #ax.set_ylim(0,1)
+    #plt.ylabel('Daily probability')
+    #plt.title('Probabilistic classification of hashtags in the Pro-Clinton / Anti-Trump camp')
+    
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_ylim(0,1)
+    df[Use].plot(ax=ax) 
+    plt.ylabel('Daily probability') 
+    plt.title('Probabilistic classification of hashtags in the Pro-Clinton / Anti-Trump camp')
+    
+    io = StringIO()
+    fig.savefig(io, format='png')
+    data = base64.encodestring(io.getvalue())
+    data=urllib.quote(data.rstrip('\n'))
+    return render_template("HashtagEvolutionOutput.html", png = data)
   

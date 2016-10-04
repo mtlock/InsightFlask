@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>Starter Template for Bootstrap</title>
+    <title>Tweet Off</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../static/css/bootstrap.min.css" rel="stylesheet">
@@ -43,12 +43,12 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Project name</a>
+          <a class="navbar-brand" href="{{url_for('TweetData')}}">Tweet Off</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
+            <li><a href="Mike_Lock.pdf">Resume</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -70,142 +70,10 @@
 
     <div class="container">
     <div class="starter-template">
-        <h2>Invalid range of dates. Try again.</h2>
+        <h2><center>Invalid range of dates. Try again.</center></h2>
         
     </div>
    
-
-<div class="container">
-      <form  action="/graph" method="GET">
-
-    <div class="form-group">
-
-    <h3> Start date and time:</h3>
-    
-    Day:&nbsp;
-    <select name="start_day" id="start_day">
-    <option value="">September 24 - 30</option>
-    <option value="September 24">September 24</option>
-    <option value="September 25">September 25</option>
-    <option value="September 26">September 26</option>
-    <option value="September 27">September 27</option>
-    <option value="September 28">September 28</option>
-    </select>
-    &nbsp;    &nbsp;    &nbsp;
-
-
-    Time:&nbsp;
-    <select name="start_hour" id="start_hour">
-    <option value="00">Hour</option>
-    <option value="12">12</option>
-    <option value="01">1</option>
-    <option value="02">2</option>
-    <option value="03">3</option>
-    <option value="04">4</option>
-    <option value="05">5</option>
-    <option value="06">6</option>
-    <option value="07">7</option>
-    <option value="08">8</option>
-    <option value="09">9</option>
-    <option value="10">10</option>
-    <option value="11">11</option>
-    </select>
-    
-    <select name="start_minute" id="start_minute">
-    <option value="00">Minute</option>    
-    <option value="00">00</option>
-    <option value="05">05</option>
-    <option value="10">10</option>
-    <option value="15">15</option>
-    <option value="20">20</option>
-    <option value="25">25</option>
-    <option value="30">30</option>
-    <option value="35">35</option>
-    <option value="40">40</option>
-    <option value="45">45</option>
-    <option value="50">50</option>
-    <option value="55">55</option>
-    </select>
-    
-    <select name="am/pm" id="am/pm">
-    <option value="AM">AM/PM</option>    
-    <option value="AM">AM</option>
-    <option value="PM">PM</option>
-    </select>
-    
-    <h3> Length of window:</h3>
-    Days / Hours / Minutes: &nbsp;
-    <select name="add_day" id="start_day">
-    <option value="00">Days</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    </select>
-
-
-    <select name="add_hour" id="start_hour">
-    <option value="0">Hours</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-    <option value="10">10</option>
-    <option value="11">11</option>
-    <option value="12">12</option>
-    <option value="13">13</option>
-    <option value="14">14</option>
-    <option value="15">15</option>
-    <option value="16">16</option>
-    <option value="17">17</option>
-    <option value="18">18</option>
-    <option value="19">19</option>
-    <option value="20">20</option>
-    <option value="21">21</option>
-    <option value="22">22</option>
-    <option value="23">23</option>
-
-    </select>
-    
-    <select name="add_minute" id="start_minute">
-    <option value="0">minute</option>    
-    <option value="0">0</option>
-    <option value="5">5</option>
-    <option value="10">10</option>
-    <option value="15">15</option>
-    <option value="20">20</option>
-    <option value="25">25</option>
-    <option value="30">30</option>
-    <option value="35">35</option>
-    <option value="40">40</option>
-    <option value="45">45</option>
-    <option value="50">50</option>
-    <option value="55">55</option>
-    </select>
-    
-    
-    
-     <h3> Size of data time blocks:</h3>
-    <select name="time_block" id="time_block">
-     <option value="0">time blck</option>    
-    <option value="1">minute by minute</option>
-    <option value="5">5 minutes by 5 minutes</option>
-    <option value="60">hour by hour</option>
-    <option value="360">6 hours by 6 hours</option>
-    </select>
-    
-     </div>
-
-    
-    <div style="display: table-column;"></div>
-<div style="display: table-column; width:100%;"></div>
-<input name="submitbutton" type="submit" value="submit" />
-</form>    
     </div>
     
   
