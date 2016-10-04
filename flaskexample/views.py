@@ -270,23 +270,6 @@ def HashtagEvolution():
 
 @app.route('/TagEvolution')
 def TagEvolution():
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    import seaborn as sns  
-    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-    from matplotlib.figure import Figure
-    from matplotlib.dates import DateFormatter 
-    from StringIO import StringIO
-    import base64
-    import io
-    from io import BytesIO 
-    import urllib
-    import pickle
-    
-    f = open('flaskexample/static/df_hashtag_evolution.pickle', 'rb')
-    df = pickle.load(f)
-    f.close()
     #pull start date/time and length of window and store it
     hashtag1 = request.args.get('hashtag_1')
     hashtag2 = request.args.get('hashtag_2')
@@ -294,23 +277,43 @@ def TagEvolution():
     hashtag4 = request.args.get('hashtag_4')
     L = [hashtag1,hashtag2,hashtag3,hashtag4]
     Use = [x for x in L if len(x)>0]
-    print Use
-    fig=plt.figure()
-    #ax = fig.add_subplot(1, 1, 1)
-    #ax = df[Use].plot()
-    #ax.set_ylim(0,1)
-    #plt.ylabel('Daily probability')
-    #plt.title('Probabilistic classification of hashtags in the Pro-Clinton / Anti-Trump camp')
+    if len(Use) == 0:
+        return render_template("BadHashtagEvolution.html")
+    else:
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        import seaborn as sns  
+        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+        from matplotlib.figure import Figure
+        from matplotlib.dates import DateFormatter 
+        from StringIO import StringIO
+        import base64
+        import io
+        from io import BytesIO 
+        import urllib
+        import pickle
     
-    ax = fig.add_subplot(1, 1, 1)
-    ax.set_ylim(0,1)
-    df[Use].plot(ax=ax) 
-    plt.ylabel('Daily probability') 
-    plt.title('Probabilistic classification of hashtags in the Pro-Clinton / Anti-Trump camp')
+        f = open('flaskexample/static/df_hashtag_evolution.pickle', 'rb')
+        df = pickle.load(f)
+        f.close()
+        
+        fig=plt.figure()
+        #ax = fig.add_subplot(1, 1, 1)
+        #ax = df[Use].plot()
+        #ax.set_ylim(0,1)
+        #plt.ylabel('Daily probability')
+        #plt.title('Probabilistic classification of hashtags in the Pro-Clinton / Anti-Trump camp')
     
-    io = StringIO()
-    fig.savefig(io, format='png')
-    data = base64.encodestring(io.getvalue())
-    data=urllib.quote(data.rstrip('\n'))
-    return render_template("HashtagEvolutionOutput.html", png = data)
+        ax = fig.add_subplot(1, 1, 1)
+        ax.set_ylim(0,1)
+        df[Use].plot(ax=ax) 
+        plt.ylabel('Daily probability') 
+        plt.title('Probabilistic classification of hashtags in the Pro-Clinton / Anti-Trump camp')
+    
+        io = StringIO()
+        fig.savefig(io, format='png')
+        data = base64.encodestring(io.getvalue())
+        data=urllib.quote(data.rstrip('\n'))
+        return render_template("HashtagEvolutionOutput.html", png = data)
   
